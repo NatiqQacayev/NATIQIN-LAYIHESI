@@ -1,121 +1,133 @@
-let btnAdd = document.querySelector(".add-btn .add-label");
-let main = document.querySelector(".container");
-let inp = document.querySelector("input");
-let lbl = document.querySelector("label");
-let contain = document.createElement("div");
-let newDiv = document.querySelector(".tasks-box");
-let plus = document.querySelector(".add-icon");
-let list = document.createElement("ul");
-let xBtn = document.querySelector(".clear-btn");
-let sort1 = document.querySelector(".sort-icon");
+const addTextBtn = document.querySelector(".add-btn .add-label");
+const containerBox = document.querySelector(".container");
+const inputEl = document.querySelector("input");
+const labelBox = document.querySelector("label");
+const tasksRoot = document.querySelector(".tasks-box");
+const plusIcon = document.querySelector(".add-icon");
+const clearInputIcon = document.querySelector(".clear-btn");
+const sortBtn = document.querySelector(".sort-icon");
 
-list.style.listStyleType = "none";
-newDiv.appendChild(contain);
-contain.appendChild(list);
 
-let counter = 0;
-let temp = true;
+const tasksContainer = document.createElement("div");
+const ul = document.createElement("ul");
 
-btnAdd.addEventListener("click", () => {
-  counter++;
-  contain.style.width = "286px";
-  contain.style.minHeight = "43.5px";
-  contain.style.borderRadius = "10px";
-  contain.style.border = "1px solid #c4c4c4";
-  contain.style.display = "none";
-  contain.style.marginTop = "42px";
-  contain.style.paddingTop = "10px";
-  contain.style.paddingLeft = "30px";
-  contain.style.marginLeft = "20px";
+tasksContainer.appendChild(ul);
+tasksRoot.appendChild(tasksContainer);
 
-  lbl.style.display = "none";
-  contain.style.display = "block";
+ul.style.listStyle = "none";
 
-  let newLi = document.createElement("li");
-  let img = document.createElement("img");
-  let span = document.createElement("span");
+let taskID = 0;
+let sortAscending = true;
 
-  span.classList.add("newSpan");
-  span.dataset.id = counter;
-  span.textContent = span.dataset.id + ". " + inp.value;
 
-  inp.value = "";
+addTextBtn.addEventListener("click", function () {
+  taskID++;
 
-  list.appendChild(newLi);
-  newLi.appendChild(span);
-  newLi.appendChild(img);
+  Object.assign(tasksContainer.style, {
+    width: "286px",
+    minHeight: "43.5px",
+    borderRadius: "10px",
+    border: "1px solid #c4c4c4",
+    marginTop: "42px",
+    paddingTop: "10px",
+    paddingLeft: "30px",
+    marginLeft: "20px",
+    display: "block"
+  });
 
-  img.src = "./Group 77 (7).svg";
-  img.style.position = "absolute";
-  img.style.right = "10px";
-  img.style.bottom = "10px";
-  img.style.cursor = "pointer";
+  labelBox.style.display = "none";
+  const li = document.createElement("li");
+  const deleteIcon = document.createElement("img");
+  const text = document.createElement("span");
 
-  newLi.style.position = "relative";
-  newLi.style.paddingBottom = "10px";
+  text.dataset.id = taskID;
+  text.textContent = `${taskID}. ${inputEl.value}`;
+  text.classList.add("newSpan");
 
-  img.addEventListener("click", () => {
-    newLi.remove();
-    if (list.children.length == 0) {
-      lbl.style.display = "block";
-      xBtn.style.display = "none";
-      contain.style.display = "none";
+  inputEl.value = "";
+
+  deleteIcon.src = "./Group 77 (7).svg";
+  deleteIcon.style.cssText = `
+    position:absolute;
+    right:10px;
+    bottom:10px;
+    cursor:pointer;
+  `;
+
+  li.style.position = "relative";
+  li.style.paddingBottom = "10px";
+
+  li.append(text, deleteIcon);
+  ul.appendChild(li);
+
+  deleteIcon.addEventListener("click", () => {
+    li.remove();
+
+    if (ul.children.length === 0) {
+      tasksContainer.style.display = "none";
+      clearInputIcon.style.display = "none";
+      labelBox.style.display = "block";
     }
   });
 
-  img.addEventListener("mouseenter", () => {
-    img.src = "./Group 70 (6).svg";
+  deleteIcon.addEventListener("mouseenter", () => {
+    deleteIcon.src = "./Group 70 (6).svg";
   });
-
-  img.addEventListener("mouseleave", () => {
-    img.src = "./Group 77 (7).svg";
+  deleteIcon.addEventListener("mouseleave", () => {
+    deleteIcon.src = "./Group 77 (7).svg";
   });
 });
 
-plus.addEventListener("click", () => {
-  lbl.style.display = "block";
-  xBtn.style.display = "none";
+
+plusIcon.addEventListener("click", () => {
+  labelBox.style.display = "block";
+  clearInputIcon.style.display = "none";
 });
 
-sort1.addEventListener("click", () => {
-  let lis = [...document.querySelectorAll("li")];
 
-  let items = lis.map(li => {
-    let span = li.querySelector("span");
+sortBtn.addEventListener("click", () => {
+  const allItems = [...ul.querySelectorAll("li")];
+
+  const mapped = allItems.map(item => {
+    const span = item.querySelector("span");
     return {
-      element: li,
+      node: item,
       id: span.dataset.id,
-      value: span.textContent.split(". ")[1]
+      content: span.textContent.split(". ")[1]
     };
   });
 
-  items.sort((a, b) => {
-    let aNum = Number(a.value);
-    let bNum = Number(b.value);
+  mapped.sort((a, b) => {
+    const na = Number(a.content);
+    const nb = Number(b.content);
 
-    if (!isNaN(aNum) && !isNaN(bNum)) {
-      return temp ? aNum - bNum : bNum - aNum;
-    } else {
-      return temp
-        ? a.value.localeCompare(b.value)
-        : b.value.localeCompare(a.value);
+    if (!isNaN(na) && !isNaN(nb)) {
+      return sortAscending ? na - nb : nb - na;
     }
+
+    return sortAscending
+      ? a.content.localeCompare(b.content)
+      : b.content.localeCompare(a.content);
   });
 
-  list.innerHTML = "";
-  items.forEach(item => list.appendChild(item.element));
+  ul.innerHTML = "";
+  mapped.forEach(obj => ul.appendChild(obj.node));
 
-  let icon = document.querySelector(".sort-icon");
+  sortBtn.src = sortAscending
+    ? "./Group 90 (3).svg"
+    : "./Group 74 (4).svg";
 
-  icon.addEventListener("mouseenter", () => {
-    icon.src = temp ? "./Group 73.svg" : "./Group 91 (2).svg";
-  });
+  sortBtn.onmouseenter = () => {
+    sortBtn.src = sortAscending
+      ? "./Group 73.svg"
+      : "./Group 91 (2).svg";
+  };
 
-  icon.addEventListener("mouseleave", () => {
-    icon.src = temp ? "./Group 74 (4).svg" : "./Group 90 (3).svg";
-  });
+  sortBtn.onmouseleave = () => {
+    sortBtn.src = sortAscending
+      ? "./Group 74 (4).svg"
+      : "./Group 90 (3).svg";
+  };
 
-  icon.src = temp ? "./Group 90 (3).svg" : "./Group 74 (4).svg";
-
-  temp = !temp;
+  sortAscending = !sortAscending;
 });
